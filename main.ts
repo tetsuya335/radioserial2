@@ -1,3 +1,6 @@
+// 現在スタート中かどうかを覚える変数（最初は false ＝ 停止中）
+let isRunning = false
+
 // STARTの共通処理
 function doStart() {
     serial.writeLine("START")
@@ -14,19 +17,28 @@ function doStop() {
     basic.clearScreen()
 }
 
-// 本体のAボタン、または P0端子 でSTARTを実行
-input.onButtonPressed(Button.A, function () {
-    doStart()
-})
+// 押すたびに START と STOP を交互に切り替える処理
+function toggleStartStop() {
+    if (isRunning == false) {
+        isRunning = true
+        doStart()
+    } else {
+        isRunning = false
+        doStop()
+    }
+}
+
+// P0のフットスイッチ、または本体のAボタンで交互に切り替え
 input.onPinPressed(TouchPin.P0, function () {
-    doStart()
+    toggleStartStop()
+})
+input.onButtonPressed(Button.A, function () {
+    toggleStartStop()
 })
 
-// 本体のBボタン、または P2端子 でSTOPを実行
+// 本体のBボタンは強制STOP用として残しておく（状態も停止にリセット）
 input.onButtonPressed(Button.B, function () {
-    doStop()
-})
-input.onPinPressed(TouchPin.P2, function () {
+    isRunning = false
     doStop()
 })
 
